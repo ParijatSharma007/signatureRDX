@@ -1,5 +1,5 @@
 import BranchInfo from "pages/branch-info";
-import OrdersPrescriptions from "pages/OrdersPrescriptions/OrdersPrescriptions";
+import OrdersPrescriptions from "pages/ordersPrescriptions/OrdersPrescriptions";
 import CommissionReport from "pages/commission-report";
 import PharmacyAndBranch from "pages/home/PharmacyAndBranch";
 import PayoutReport from "pages/payout-report";

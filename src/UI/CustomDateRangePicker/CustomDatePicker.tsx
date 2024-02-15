@@ -1,5 +1,5 @@
 import React from "react";
-import { DatePicker, DatePickerProps } from "antd";
+import { DatePicker } from "antd";
 import styled from "@emotion/styled";
 import CalendarIcon from "UI/Icons/CalendarIcon";
 const { RangePicker } = DatePicker;
@@ -22,13 +22,29 @@ const DatePickerWrap = styled("div")`
   }
 `;
 
-const CustomDatePicker = ({ ...props }: DatePickerProps) => {
-  const { picker, disabled } = props;
+interface CustomDatePickerInterface {
+  picker?: "time" | "date" | "week" | "month" | "quarter" | "year" | undefined,
+  disabled?: boolean | undefined,
+  passingDate?: (date: { startDate: string, endDate: string }) => void
+}
+
+
+const CustomDatePicker = ({ ...props }: CustomDatePickerInterface) => {
+  const { picker, disabled } = props
+  const onchange = (date: any, dayString: string[]) => {
+    if (typeof props.passingDate !== "undefined") {
+      props.passingDate({
+        startDate: dayString[0],
+        endDate: dayString[1]
+      })
+    }
+  }
   return (
     <DatePickerWrap>
       <RangePicker
+        onChange={onchange}
         picker={picker || "date"}
-        disabled={disabled}
+        disabled={disabled || false}
         suffixIcon={<CalendarIcon />}
         separator={<>-</>}
       />

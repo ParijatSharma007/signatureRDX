@@ -7,6 +7,7 @@ import FilterIcon from "UI/Icons/FilterIcon";
 import Searchicon from "UI/Icons/Searchicon";
 import XIcon from "UI/Icons/XIcon";
 import { Button, Checkbox, Flex, Input, Popover, Typography } from "antd";
+import { useState } from "react";
 
 import { FilterRowWrapper } from "styles/StyledComponents/FilterRowWrapper";
 
@@ -18,25 +19,51 @@ interface FilterRowprops {
   showDownloadButton?: boolean;
   showAddButton?: boolean;
   hideCheckbox?: boolean;
+  passingDates?: any
+  passingInput?: (s: { [key: string]: string }) => void,
+  passingCheckedFillters?: (s: any) => void,
+  urlOrderId?: string,
+  urlPrescriptionId?: string
 }
 
-const PopoverContent = () => {
+interface CheckState {
+  all: boolean,
+  collected: boolean,
+  rejected: boolean
+}
+
+const PopoverContent = ({ passingCheckedFillters }: { passingCheckedFillters: (e: CheckState) => void }) => {
+
+  const [checkState, setCheckState] = useState<CheckState>({
+    all: false,
+    collected: false,
+    rejected: false
+  })
+
+  const handleCheckedFillters = (field: string, checked: boolean) => {
+    setCheckState({
+      ...checkState,
+      [field]: checked
+    })
+    passingCheckedFillters(checkState)
+  }
+
   return (
     <ul className="popover-list">
       <li>
-        <Checkbox>All</Checkbox>{" "}
+        <Checkbox value={'all'}
+          onChange={e => handleCheckedFillters(e.target.value, e.target.checked)}>All</Checkbox>{" "}
         <Button type="link" icon={<XIcon />}>
           Clear All
         </Button>
       </li>
       <li>
-        <Checkbox>In Progress</Checkbox>
+        <Checkbox value={'collected'}
+          onChange={e => handleCheckedFillters(e.target.value, e.target.checked)}>Collected</Checkbox>
       </li>
       <li>
-        <Checkbox>Payout Sent</Checkbox>
-      </li>
-      <li>
-        <Checkbox>Paid</Checkbox>
+        <Checkbox value={'rejected'}
+          onChange={e => handleCheckedFillters(e.target.value, e.target.checked)}>Rejected</Checkbox>
       </li>
     </ul>
   );
@@ -49,27 +76,66 @@ const FilterRow = ({
   showDownloadButton,
   showAddButton,
   hideCheckbox,
+  passingDates,
+  passingInput,
+  passingCheckedFillters,
+  urlPrescriptionId,
+  urlOrderId
 }: FilterRowprops) => {
+  const [checkedFilterValues, setCheckedFilterValues] = useState({
+    isOpen: false,
+    all: false,
+    collected: false,
+    rejected: false
+  })
+  const passingDate = (value: { startDate: string, endDate: string }) => {
+    if (typeof passingDate !== "undefined") {
+      passingDates(value)
+    }
+  }
+
+  if (passingCheckedFillters) passingCheckedFillters(checkedFilterValues)
+
   return (
     <FilterRowWrapper>
       <Flex justify="space-between" align="center">
         {title && <Typography.Title level={4}>{title}</Typography.Title>}
-        {!hideDatePicker && <CustomDatePicker />}
+        {!hideDatePicker && <CustomDatePicker passingDate={passingDate} />}
         <Flex>
-          {}
+          {"...."}
           {!hidesearch && (
-            <Input
-              size="large"
-              placeholder="Search"
-              className="searchbar"
-              prefix={<Searchicon />}
-            />
+            <div style={{ display: 'flex', flexDirection: 'row' }}>
+              <Input
+                size="large"
+                placeholder="#prescriptionId"
+                className="searchbar"
+                prefix={<Searchicon />}
+                value={urlPrescriptionId}
+                onChange={(e) => { if (typeof passingInput !== 'undefined') passingInput({ prescriptionId: e.target.value }) }}
+              />
+              <Input
+                size="large"
+                placeholder="#orderId"
+                className="searchbar"
+                prefix={<Searchicon />}
+                value={urlOrderId}
+                onChange={(e) => { if (typeof passingInput !== 'undefined') passingInput({ orderNumber: e.target.value }) }}
+              />
+              {/* <Input
+                size="large"
+                placeholder="#"
+                className="searchbar"
+                prefix={<Searchicon />}
+                onChange={(e) => { if (typeof passingInput !== 'undefined') passingInput(e.target.value) }}
+              /> */}
+            </div>
           )}
           {!hidefilter && (
             <Popover
               placement="bottomLeft"
-              content={PopoverContent}
+              content={<PopoverContent passingCheckedFillters={(checkedVales) => { setCheckedFilterValues({ ...checkedFilterValues, ...checkedVales }) }} />}
               arrow={false}
+              onOpenChange={(e) => { setCheckedFilterValues({ ...checkedFilterValues, isOpen: e }) }}
             >
               <Button className="filter">
                 Filters

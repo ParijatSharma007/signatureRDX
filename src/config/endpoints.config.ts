@@ -8,5 +8,6 @@ const endpoints = {
   pharmacy: {
     getDetails: (id?: string) => `pharmacy/get/${id}`,
   },
+  orderList: 'order/list/'
 };
 export default endpoints;

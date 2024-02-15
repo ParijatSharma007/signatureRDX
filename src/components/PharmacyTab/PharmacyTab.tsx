@@ -46,15 +46,15 @@ const PharmacyTab = () => {
               status === "active"
                 ? "success"
                 : status === "pending"
-                ? "processing"
-                : "default"
+                  ? "processing"
+                  : "default"
             }
             text={
               status === "active"
                 ? "Active"
                 : status === "pending"
-                ? "Approval Pending"
-                : "Inactive"
+                  ? "Approval Pending"
+                  : "Inactive"
             }
           />
         </>

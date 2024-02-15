@@ -165,7 +165,7 @@ export default function Login() {
 
   const onSubmit = useCallback(
     (data: LoginSchemaType) => {
-      loginMutation.login(data)?.then(() => {});
+      loginMutation.login(data)?.then(() => { })
     },
     [loginMutation]
   );

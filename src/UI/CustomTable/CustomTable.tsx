@@ -3,6 +3,7 @@ import Chevorndown from "UI/Icons/Chevorn-down";
 import SortIcon from "UI/Icons/SortIcon";
 import { Flex, Select, Table } from "antd";
 import { TableProps } from "antd/es/table";
+import { useState } from "react";
 
 const TableWrapper = styled("div")`
   position: relative;
@@ -130,12 +131,14 @@ const TableWrapper = styled("div")`
   }
 `;
 
-export const TableHeader = (props: { title?: string; sort?: boolean }) => {
+export const TableHeader = (props: { title?: string; sort?: boolean, passingSortingProps?: (t: string) => any }) => {
   return (
     <div className="sort-flex">
       <p className="table-header"> {props.title}</p>
       {props.sort && (
-        <i>
+        <i onClick={() => {
+          if (props.passingSortingProps && props.title) props.passingSortingProps(props.title)
+        }}>
           <SortIcon />
         </i>
       )}
@@ -143,16 +146,41 @@ export const TableHeader = (props: { title?: string; sort?: boolean }) => {
   );
 };
 interface CustomtableProps extends TableProps<any> {
-  tableHeightsmall?: boolean;
+  tableHeightsmall?: boolean
+  passingSelecter?: (v: number) => void,
+  currentPage?: number,
+  totalPage?: number,
+  pages?: number,
+  passingPageNumber?: (val: number) => void
 }
 const CustomTable = ({
   className,
   columns,
   dataSource,
   tableHeightsmall,
+  passingSelecter,
+  currentPage,
+  pages,
+  passingPageNumber
 }: CustomtableProps) => {
+
+  const [selecter, setSelecter] = useState<number>(10)
+
+  const handleChange = (value: number) => {
+    setSelecter(value)
+    if (typeof passingSelecter !== "undefined") {
+      passingSelecter(value)
+    }
+  }
+
   return (
     <TableWrapper>
+      <style>
+        {`
+        div::-webkit-scrollbar {
+          width: 100px;
+      `}
+      </style>
       <Table
         columns={columns}
         dataSource={dataSource}
@@ -161,17 +189,38 @@ const CustomTable = ({
           x: 1200,
         }}
         className={className}
-        pagination={{ pageSize: 10 }}
+        pagination={{
+          total: pages,
+          defaultPageSize: 10,
+          pageSize: selecter,
+          current: currentPage,
+          onChange: (val) => {
+            if (typeof passingPageNumber !== "undefined") {
+              passingPageNumber(val)
+            }
+          },
+          hideOnSinglePage: false,
+          showQuickJumper: false,
+          showSizeChanger: false
+        }}
       />
 
       <Flex align="center" className="absolute-table-pagination">
         <p>View</p>{" "}
         <Select
-          defaultValue="14"
-          options={[{ value: 14, label: 14 }]}
+          defaultValue={selecter}
+          options={[
+            { value: 5, label: 5 },
+            { value: 10, label: 10 },
+            { value: 20, label: 20 },
+            { value: 50, label: 50 },
+            { value: 100, label: 100 },
+          ]}
+          onChange={handleChange}
           suffixIcon={<Chevorndown />}
-        />{" "}
+        />{"    "}
         <p>item per page</p>
+
       </Flex>
     </TableWrapper>
   );

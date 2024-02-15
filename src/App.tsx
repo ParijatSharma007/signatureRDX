@@ -12,6 +12,7 @@ import useDateSetup from "lib/hooks/utilities/useDateSetup";
 import usePreventInspectElement from "lib/hooks/dom/usePreventInspectElement";
 import AppThemeSetup from "theme/AppThemeSetup";
 import { AuthProvider } from "lib/modules/user/context/AuthContext";
+// import axios from "axios";
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -31,6 +32,8 @@ function App() {
   useEffect(() => {
     const state = store?.getState()?.userSlice;
     setAxiosAccessToken(state.accessToken);
+    // console.log(getAxiosAccessToken());
+    // axios.defaults.headers.common['Authorization'] = `Bearer ${getAxiosAccessToken()}`;
   }, []);
 
   return (

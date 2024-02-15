@@ -41,7 +41,7 @@ const BranchesTab = () => {
       title: <TableHeader title="Status" />,
       dataIndex: "status",
       key: "status",
-      render: (_status) => (
+      render: (status) => (
         <>
           <CustomSwitch label="Online" className="greenSwitch" />
         </>

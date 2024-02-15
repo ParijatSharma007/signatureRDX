@@ -4,3 +4,13 @@ export interface IconProps {
   height?: number;
   className?: string;
 }
+
+export interface CommonApiCalls {
+  status: string,
+  message?: string,
+
+}
+
+
+
+
