@@ -1,7 +1,8 @@
-import React from "react";
+
 import { DatePicker } from "antd";
 import styled from "@emotion/styled";
 import CalendarIcon from "UI/Icons/CalendarIcon";
+import dayjs from "dayjs";
 const { RangePicker } = DatePicker;
 
 const DatePickerWrap = styled("div")`
@@ -25,12 +26,15 @@ const DatePickerWrap = styled("div")`
 interface CustomDatePickerInterface {
   picker?: "time" | "date" | "week" | "month" | "quarter" | "year" | undefined,
   disabled?: boolean | undefined,
-  passingDate?: (date: { startDate: string, endDate: string }) => void
+  passingDate?: (date: { startDate: string, endDate: string }) => void,
+  defaultStartDate?: string | null,
+  defaultEndDate?: string | null
 }
 
 
 const CustomDatePicker = ({ ...props }: CustomDatePickerInterface) => {
   const { picker, disabled } = props
+
   const onchange = (date: any, dayString: string[]) => {
     if (typeof props.passingDate !== "undefined") {
       props.passingDate({
@@ -42,6 +46,7 @@ const CustomDatePicker = ({ ...props }: CustomDatePickerInterface) => {
   return (
     <DatePickerWrap>
       <RangePicker
+        defaultValue={[dayjs(props.defaultStartDate), dayjs(props.defaultEndDate)]}
         onChange={onchange}
         picker={picker || "date"}
         disabled={disabled || false}

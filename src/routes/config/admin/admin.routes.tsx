@@ -6,6 +6,7 @@ import PayoutReport from "pages/payout-report";
 import PharmacyInfo from "pages/pharmacy-info";
 import { RouteObject } from "react-router";
 import _AdminProtector from "routes/protectors/AdminProtector";
+import OrderPrescriptionDetail from "pages/orderPrescriptionDetail/OrderPrescriptionDetail";
 
 const adminRoutes: RouteObject[] = [
   {
@@ -51,6 +52,10 @@ const adminRoutes: RouteObject[] = [
   {
     path: "/orders-prescriptions",
     element: <OrdersPrescriptions />
+  },
+  {
+    path: "/orders-prescriptions/:id",
+    element: <OrderPrescriptionDetail />
   }
 ];
 

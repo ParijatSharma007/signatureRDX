@@ -17,7 +17,7 @@ export const getOderList = async ({
     page, length, column,
     order, startDate, endDate,
     prescriptionId, orderNumber
-}: RequestOrderInterface) => {
+}: any) => {
     const response: GetOrderList = await request.post(endpoints.orderList, {
         page,
         length,

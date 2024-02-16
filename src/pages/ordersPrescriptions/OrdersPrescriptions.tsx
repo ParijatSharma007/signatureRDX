@@ -13,7 +13,10 @@ import { useEffect, useState } from "react";
 // import { GetOrderListDoc } from "typescript/interfaces/orderlist.interface";
 import FilterRow from "components/FilterRow/FilterRow";
 import { useDebounceValue } from "lib/hooks/useDebounceValue";
-import { useSearchParams } from "react-router-dom";
+import useUrlState from "@ahooksjs/use-url-state";
+import dayjs from "dayjs";
+import PopOver from "UI/Popover/Popover";
+import { Link } from "react-router-dom";
 
 interface DataType {
     prescriptionId: string,
@@ -23,19 +26,20 @@ interface DataType {
     logo?: string | undefined
     paymentStatus: string,
     orderStatus: string,
-    orderNumber: string
+    orderNumber: string,
+    width?: string,
+    id: number
 }
 
 export default function OrdersPrescriptions() {
-    const [searchParams, setSearchParams] = useSearchParams()
     const [dataSource, setDataSource] = useState<DataType[]>([])
-    const [queryParams, setQueryParams] = useState<RequestOrderInterface>({
+    const [queryParams, setQueryParams] = useUrlState<RequestOrderInterface>({
         page: 1,
         length: 10,
         column: 'id',
         order: 'ASC',
-        startDate: '2024-01-01',
-        endDate: '2024-02-12',
+        startDate: dayjs().startOf('month').format('YYYY-MM-DD').toString(),
+        endDate: dayjs().endOf('month').format('YYYY-MM-DD').toString(),
         prescriptionId: "",
         orderNumber: ""
     })
@@ -58,45 +62,29 @@ export default function OrdersPrescriptions() {
                 ...queryParams,
                 ...dates
             })
-            setSearchParams({
-                ...searchParams,
-                ...dates
-            })
         }
     }
 
 
     const handleSort = (key: string) => {
-        if (key === "id") {
-            setSearchParams({
-                ...searchParams,
-                column: key,
-                order: 'ASC'
-            })
-            return setQueryParams({
-                ...queryParams,
-                column: key,
-                order: 'ASC'
-            })
-        } else {
-            if (queryParams.order === "ASC") {
-                setSearchParams({
-                    ...searchParams,
-                    order: 'DESC'
+        if (key === queryParams.column) {
+            if (queryParams.order === 'DESC') {
+                return setQueryParams({
+                    ...queryParams,
+                    column: "id",
+                    order: "ASC"
                 })
-                return setQueryParams({ ...queryParams, order: "DESC" })
             }
-            setSearchParams({
-                ...searchParams,
-                column: "id",
-                order: "ASC"
-            })
             return setQueryParams({
                 ...queryParams,
-                column: "id",
-                order: "ASC"
+                order: "DESC"
             })
         }
+        return setQueryParams({
+            ...queryParams,
+            column: key,
+            order: 'ASC'
+        })
     }
 
     const handleSearch = (val: { [key: string]: string }) => {
@@ -104,44 +92,20 @@ export default function OrdersPrescriptions() {
             ...queryParams,
             ...val
         })
-        setSearchParams({
-            ...searchParams,
-            ...val
-        })
     }
-
-    useEffect(() => {
-        const page = searchParams.get("page")
-        const length = searchParams.get("length")
-        const column = searchParams.get("column")
-        const order = searchParams.get("order")
-        const startDate = searchParams.get("startDate")
-        const endDate = searchParams.get("endDate")
-        const prescriptionId = searchParams.get("prescriptionId")
-        const orderNumber = searchParams.get("orderNumber")
-        setQueryParams({
-            page: typeof page === "number" ? page : 1,
-            length: typeof length === 'number' ? length : 10,
-            column: typeof column === 'string' ? column : "id",
-            order: order === 'ASC' || order === 'DESC' ? order : 'ASC',
-            startDate: typeof startDate === 'string' ? startDate : queryParams.startDate,
-            endDate: typeof endDate === 'string' ? endDate : queryParams.endDate,
-            prescriptionId: typeof prescriptionId === 'string' ? prescriptionId : queryParams.prescriptionId,
-            orderNumber: typeof orderNumber === 'string' ? orderNumber : queryParams.orderNumber
-        })
-        console.log("query params updated", queryParams);
-    }, [])
 
     const columns: ColumnsType<DataType> = [
         {
             title: <TableHeader title="prescriptionId" sort passingSortingProps={handleSort} />,
             dataIndex: "prescriptionId",
             key: "prescriptionId",
-            render: (prescriptionId) => (
-                <p>{prescriptionId}</p>
+            render: (prescriptionId, item) => (
+                <Link to={`${item.id}`}>{prescriptionId}</Link>
             ),
             sorter: true,
-            width: 323,
+            width: 220,
+            align: "left",
+            fixed: "left",
         },
         {
             title: <TableHeader title="prescriberName" passingSortingProps={handleSort} />,
@@ -151,6 +115,8 @@ export default function OrdersPrescriptions() {
                 <p>{prescriberName}</p>
             ),
             width: 160,
+            align: "left",
+            fixed: "left"
         },
 
         {
@@ -164,7 +130,9 @@ export default function OrdersPrescriptions() {
                     )
                 } else {
                     return <Tag color="green">
-                        {paymentStatus}
+                        <p style={{ margin: '3px', fontSize: "14px", fontWeight: "bold" }}>
+                            {paymentStatus}
+                        </p>
                     </Tag>
                 }
             },
@@ -176,10 +144,10 @@ export default function OrdersPrescriptions() {
             title: <TableHeader title="orderNumber" passingSortingProps={handleSort} sort />,
             key: "orderNumber",
             dataIndex: "orderNumber",
-            render: (orderNumber) => (
-                <p>{orderNumber}</p>
+            render: (orderNumber, item) => (
+                <Link to={`${item.id}`}>{orderNumber}</Link>
             ),
-            align: "end",
+            align: "center",
             width: 160,
             sorter: true
         },
@@ -190,7 +158,9 @@ export default function OrdersPrescriptions() {
             dataIndex: "orderStatus",
             render: (orderStatus) => (
                 <Tag color={orderStatus === "pending" ? "yellow" : orderStatus === "rejected" ? "red" : "green"}>
-                    {orderStatus}
+                    <p style={{ margin: '3px', fontSize: "14px", fontWeight: "bold" }}>
+                        {orderStatus}
+                    </p>
                 </Tag>
             ),
             align: "end",
@@ -206,7 +176,7 @@ export default function OrdersPrescriptions() {
                     <Image src={logo.logo} />
                     <p>{source}</p>
                 </div>),
-            align: "end",
+            align: "center",
             width: 160,
         },
 
@@ -218,7 +188,20 @@ export default function OrdersPrescriptions() {
                 <Typography.Text>{address}</Typography.Text>
             ),
             width: 323,
+            align: 'center',
         },
+
+        {
+            title: <TableHeader title="action" />,
+            dataIndex: "action",
+            key: "action",
+            // render: () => (
+            //     null
+            // ),
+            width: 75,
+            align: 'center',
+            fixed: 'right'
+        }
 
     ];
 
@@ -226,6 +209,12 @@ export default function OrdersPrescriptions() {
 
     useEffect(() => {
         if (data && !isLoading) {
+            if (data.data.docs.length === 0 && queryParams.length !== 1) {
+                setQueryParams({
+                    ...queryParams,
+                    page: 1
+                })
+            }
             const newDataSource = data.data.docs.map((item) => {
                 return {
                     prescriptionId: item.prescriptionId,
@@ -235,7 +224,12 @@ export default function OrdersPrescriptions() {
                     logo: item.clinic.logo_url,
                     paymentStatus: item.paymentStatus,
                     orderStatus: item.orderStatus,
-                    orderNumber: item.orderNumber
+                    orderNumber: item.orderNumber,
+                    action: <PopOver
+                        startedAt={item.orderDetail[0].createdAt}
+                        updatedAt={item.orderDetail[0].updatedAt}
+                    />,
+                    id: item.id
                 }
             })
             setDataSource(newDataSource)
@@ -246,26 +240,27 @@ export default function OrdersPrescriptions() {
         }
     }, [queryParams, data, isLoading])
 
-    useEffect(() => {
-        console.log("herf", window.location.href);
-    }, [queryParams])
-
+    // console.log(dataSource);
 
     return (
         <Layout Headertext={"Orders & Prescriptions"}>
             <FilterRow hidefilter hideCheckbox passingDates={getDates}
                 passingCheckedFillters={() => { }}
                 passingInput={handleSearch}
-                urlOrderId={queryParams.orderNumber}
+                defaultStartDate={queryParams.startDate}
+                defaultEndDate={queryParams.endDate}
                 urlPrescriptionId={queryParams.prescriptionId}
+                urlOrderId={queryParams.orderNumber}
             />
-            <CustomTable passingSelecter={(length) => setQueryParams({
-                ...queryParams,
-                length,
-            })}
+            <CustomTable defaultSelect={queryParams.length}
+                passingSelecter={(length) => setQueryParams({
+                    ...queryParams,
+                    length,
+                })}
                 columns={columns} dataSource={dataSource}
                 currentPage={queryParams.page}
                 pages={customtableProps.page}
+                pageSize={queryParams.length}
                 passingPageNumber={(pageNumber) => setQueryParams({ ...queryParams, page: pageNumber })}
             />
         </Layout>

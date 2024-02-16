@@ -23,7 +23,9 @@ interface FilterRowprops {
   passingInput?: (s: { [key: string]: string }) => void,
   passingCheckedFillters?: (s: any) => void,
   urlOrderId?: string,
-  urlPrescriptionId?: string
+  urlPrescriptionId?: string,
+  defaultStartDate?: string | null,
+  defaultEndDate?: string | null
 }
 
 interface CheckState {
@@ -80,7 +82,9 @@ const FilterRow = ({
   passingInput,
   passingCheckedFillters,
   urlPrescriptionId,
-  urlOrderId
+  urlOrderId,
+  defaultStartDate,
+  defaultEndDate
 }: FilterRowprops) => {
   const [checkedFilterValues, setCheckedFilterValues] = useState({
     isOpen: false,
@@ -100,7 +104,10 @@ const FilterRow = ({
     <FilterRowWrapper>
       <Flex justify="space-between" align="center">
         {title && <Typography.Title level={4}>{title}</Typography.Title>}
-        {!hideDatePicker && <CustomDatePicker passingDate={passingDate} />}
+        {!hideDatePicker && <CustomDatePicker
+          defaultStartDate={defaultStartDate}
+          defaultEndDate={defaultEndDate}
+          passingDate={passingDate} />}
         <Flex>
           {"...."}
           {!hidesearch && (

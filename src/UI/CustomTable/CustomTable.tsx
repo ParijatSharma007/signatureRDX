@@ -3,7 +3,6 @@ import Chevorndown from "UI/Icons/Chevorn-down";
 import SortIcon from "UI/Icons/SortIcon";
 import { Flex, Select, Table } from "antd";
 import { TableProps } from "antd/es/table";
-import { useState } from "react";
 
 const TableWrapper = styled("div")`
   position: relative;
@@ -133,12 +132,12 @@ const TableWrapper = styled("div")`
 
 export const TableHeader = (props: { title?: string; sort?: boolean, passingSortingProps?: (t: string) => any }) => {
   return (
-    <div className="sort-flex">
+    <div className="sort-flex" onClick={() => {
+      if (props.passingSortingProps && props.title) props.passingSortingProps(props.title)
+    }}>
       <p className="table-header"> {props.title}</p>
       {props.sort && (
-        <i onClick={() => {
-          if (props.passingSortingProps && props.title) props.passingSortingProps(props.title)
-        }}>
+        <i>
           <SortIcon />
         </i>
       )}
@@ -151,7 +150,9 @@ interface CustomtableProps extends TableProps<any> {
   currentPage?: number,
   totalPage?: number,
   pages?: number,
-  passingPageNumber?: (val: number) => void
+  passingPageNumber?: (val: number) => void,
+  defaultSelect?: number,
+  pageSize?: number
 }
 const CustomTable = ({
   className,
@@ -161,13 +162,12 @@ const CustomTable = ({
   passingSelecter,
   currentPage,
   pages,
-  passingPageNumber
+  passingPageNumber,
+  defaultSelect,
+  pageSize
 }: CustomtableProps) => {
 
-  const [selecter, setSelecter] = useState<number>(10)
-
   const handleChange = (value: number) => {
-    setSelecter(value)
     if (typeof passingSelecter !== "undefined") {
       passingSelecter(value)
     }
@@ -192,7 +192,7 @@ const CustomTable = ({
         pagination={{
           total: pages,
           defaultPageSize: 10,
-          pageSize: selecter,
+          pageSize: pageSize,
           current: currentPage,
           onChange: (val) => {
             if (typeof passingPageNumber !== "undefined") {
@@ -201,14 +201,15 @@ const CustomTable = ({
           },
           hideOnSinglePage: false,
           showQuickJumper: false,
-          showSizeChanger: false
+          showSizeChanger: false,
+          defaultCurrent: currentPage,
         }}
       />
 
       <Flex align="center" className="absolute-table-pagination">
         <p>View</p>{" "}
         <Select
-          defaultValue={selecter}
+          defaultValue={defaultSelect}
           options={[
             { value: 5, label: 5 },
             { value: 10, label: 10 },
